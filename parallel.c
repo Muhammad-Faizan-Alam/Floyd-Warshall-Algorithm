@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <limits.h>
-#include <time.h>
+#include <omp.h>
 
 #define vertices 4
 
@@ -12,13 +12,19 @@ void floydWarshall(int graph[vertices][vertices]) {
         for (int j = 0; j < vertices; j++)
             dist[i][j] = graph[i][j];
 
-    // Start measuring execution time
-    clock_t start = clock();
+    // Start measuring execution time using OpenMP
+    double start = omp_get_wtime();
 
-    // Floyd-Warshall Algorithm
+    // Set the number of threads dynamically
+    int num_threads = omp_get_max_threads();
+    printf("Running with %d threads...\n", num_threads);
+
+    // Parallelized Floyd-Warshall Algorithm
     for (int k = 0; k < vertices; k++) {
-        for (int j = 0; j < vertices; j++) {
-            for (int i = 0; i < vertices; i++) {
+        // Use OpenMP to parallelize the inner loop
+        #pragma omp parallel for collapse(2)
+        for (int i = 0; i < vertices; i++) {
+            for (int j = 0; j < vertices; j++) {
                 if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX) {
                     if (dist[i][j] > dist[i][k] + dist[k][j])
                         dist[i][j] = dist[i][k] + dist[k][j];
@@ -28,11 +34,11 @@ void floydWarshall(int graph[vertices][vertices]) {
     }
 
     // Stop measuring execution time
-    clock_t end = clock();
-    double execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    double end = omp_get_wtime();
+    double execution_time = end - start;
 
     // Print the result
-    printf("The shortest distances between all pairs are:\n");
+    printf("\nThe shortest distances between all pairs are:\n");
     for (int i = 0; i < vertices; i++) {
         for (int j = 0; j < vertices; j++) {
             if (dist[i][j] == INT_MAX)
@@ -55,7 +61,7 @@ int main() {
         {2, INT_MAX, INT_MAX, 0}
     };
 
-    printf("\nSequential way\n");
+    printf("\nParallel way\n");
     floydWarshall(graph);
     return 0;
 }
