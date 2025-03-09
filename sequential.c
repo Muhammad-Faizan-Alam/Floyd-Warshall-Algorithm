@@ -1,20 +1,24 @@
 #include <stdio.h>
 #include <limits.h>
+#include <time.h>
 
-#define V 4  // Number of vertices
+#define vertices 4
 
-void floydWarshall(int graph[V][V]) {
-    int dist[V][V]; 
+void floydWarshall(int graph[vertices][vertices]) {
+    int dist[vertices][vertices]; 
 
-    // Initialize distance matrix with graph values
-    for (int i = 0; i < V; i++)
-        for (int j = 0; j < V; j++)
+    // Initialize the distance matrix
+    for (int i = 0; i < vertices; i++)
+        for (int j = 0; j < vertices; j++)
             dist[i][j] = graph[i][j];
 
+    // Start measuring execution time
+    clock_t start = clock();
+
     // Floyd-Warshall Algorithm
-    for (int k = 0; k < V; k++) {
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
+    for (int k = 0; k < vertices; k++) {
+        for (int j = 0; j < vertices; j++) {
+            for (int i = 0; i < vertices; i++) {
                 if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX) {
                     if (dist[i][j] > dist[i][k] + dist[k][j])
                         dist[i][j] = dist[i][k] + dist[k][j];
@@ -23,10 +27,14 @@ void floydWarshall(int graph[V][V]) {
         }
     }
 
-    // Print result
-    printf("Shortest distances between all pairs:\n");
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
+    // Stop measuring execution time
+    clock_t end = clock();
+    double execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    // Print the result
+    printf("The shortest distances between all pairs are:\n");
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
             if (dist[i][j] == INT_MAX)
                 printf("%7s", "INF");
             else
@@ -34,10 +42,13 @@ void floydWarshall(int graph[V][V]) {
         }
         printf("\n");
     }
+
+    // Print execution time
+    printf("\nExecution Time: %f seconds\n", execution_time);
 }
 
 int main() {
-    int graph[V][V] = {
+    int graph[vertices][vertices] = {
         {0, 3, INT_MAX, 7},
         {8, 0, 2, INT_MAX},
         {5, INT_MAX, 0, 1},
