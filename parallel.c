@@ -23,7 +23,7 @@ void floydWarshall(int **graph) {
 
     // Parallelizing only the "k" loop
     for (int k = 0; k < vertices; k++) {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic, 20)
         for (int i = 0; i < vertices; i++) {
             for (int j = 0; j < vertices; j++) {
                 if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX) {
